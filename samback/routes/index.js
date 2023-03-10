@@ -25,6 +25,18 @@ router.post('/money-converter', async (req, res) => {
       convertedValue = value / 82; // assuming 1 INR = 82 USD
     } else if (currency1 === 'USD' && currency2 === 'INR') {
       convertedValue = value * 82; // assuming 1 INR = 82 USD
+    } else if (currency1 === 'INR' && currency2 === 'GBP') {
+      convertedValue = value / 93;
+    } else if (currency1 === 'GBP' && currency2 === 'INR') {
+      convertedValue = value * 93;
+    } else if (currency1 === 'USD' && currency2 === 'GBP') {
+      convertedValue = value / 1.18;
+    } else if (currency1 === 'GBP' && currency2 === 'USD') {
+      convertedValue = value * 1.18;
+    } else if (currency1 === 'UAE' && currency2 === 'INR') {
+      convertedValue = value * 22;
+    } else if (currency1 === 'INR' && currency2 === 'UAE') {
+      convertedValue = value / 22;
     } else {
       return res.status(400).send('Invalid currency selection');
     }
@@ -42,11 +54,21 @@ router.post('/money-converter', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
 router.get('/money-converter', async (req, res) => {
   try {
     const conversions = await db.any('SELECT * FROM conversions ORDER BY id DESC LIMIT 10');
     res.status(200).json(conversions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
+
+router.delete('/money-converter/:id', async (req, res) => {
+  try {
+    const { id } = req.body;
+    await db.none('DELETE FROM conversions WHERE id = $1', [id]);
+    res.status(200).json({ message: 'Conversion deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
